@@ -10,8 +10,8 @@ model Order {
 
   rate Decimal @db.Decimal(36, 18)
 
-  status    OrderStatus    @default(initiated)
-  subStatus OrderSubStatus @default(awaiting_admin_approval) @map("sub_status")
+  status    OrderStatus    @default(INITIATED)
+  subStatus OrderSubStatus @default(AWAITING_ADMIN_APPROVAL) @map("sub_status")
 
   createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
