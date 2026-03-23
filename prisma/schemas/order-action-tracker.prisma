@@ -1,0 +1,26 @@
+model OrderActionTracker {
+  id             String @id @default(uuid()) @db.Uuid
+  idempotencyKey String @unique @map("idempotency_key")
+  accountId      String @map("account_id") @db.Uuid
+
+  sourceCurrencyId String  @map("source_currency_id") @db.Uuid
+  sourceAmount     Decimal @map("source_amount") @db.Decimal(36, 18)
+
+  targetCurrencyId String  @map("target_currency_id") @db.Uuid
+  targetAmount     Decimal @map("target_amount") @db.Decimal(36, 18)
+
+  rate Decimal @db.Decimal(36, 18)
+
+  transactionRef String? @map("transaction_ref")
+  errorMessage   String? @map("error_message")
+
+  status OrderActionTrackerStatus @default(INITIALIZED)
+
+  orderId String? @map("order_id") @db.Uuid
+  order   Order?  @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+
+  @@map("order_action_trackers")
+}
