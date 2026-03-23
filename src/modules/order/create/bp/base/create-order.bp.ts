@@ -11,6 +11,8 @@ import type { CreateOrderDto } from '../../dto/create-order.dto';
 import { CreateOrderVo } from '../../vo/create-order.vo';
 import type { ICreateOrderPolicy } from '../../policies/interfaces';
 import { CREATE_ORDER_POLICY } from '../../constants';
+import { AppException } from '@app/common/exceptions';
+import { AppClsService } from '@app/common/cls';
 import type { ICreateOrderBp } from '../interfaces';
 
 export abstract class BaseCreateOrderBp implements ICreateOrderBp {
@@ -23,6 +25,7 @@ export abstract class BaseCreateOrderBp implements ICreateOrderBp {
     protected readonly trackerDal: IOrderActionTrackerDal,
     @Inject(CREATE_ORDER_POLICY)
     protected readonly policy: ICreateOrderPolicy,
+    protected readonly appClsService: AppClsService,
   ) {}
 
   protected abstract getInitialStatus(): OrderStatus;
@@ -85,17 +88,18 @@ export abstract class BaseCreateOrderBp implements ICreateOrderBp {
         status: OrderActionTrackerStatus.WALLET_DEDUCTED,
       });
     } catch (error) {
-      const isTimeout =
-        error instanceof Error && error.message.includes('timeout');
-
       await this.trackerDal.update(trackerId, {
-        status: isTimeout
-          ? OrderActionTrackerStatus.WALLET_UNKNOWN
-          : OrderActionTrackerStatus.FAILED_WALLET_ERROR,
+        status: OrderActionTrackerStatus.FAILED_WALLET_ERROR,
         errorMessage: error instanceof Error ? error.message : 'Unknown error',
       });
 
-      throw error;
+      this.logger.error(
+        `Wallet deduction failed for account ${dto.accountId}`,
+        error instanceof Error ? error.stack : String(error),
+        { traceId: this.appClsService.getTraceId() },
+      );
+
+      throw new AppException('WALLET_DEDUCTION_FAILED');
     }
   }
 
@@ -118,7 +122,13 @@ export abstract class BaseCreateOrderBp implements ICreateOrderBp {
         errorMessage: error instanceof Error ? error.message : 'Unknown error',
       });
 
-      throw error;
+      this.logger.error(
+        `Order persistence failed for account ${dto.accountId}`,
+        error instanceof Error ? error.stack : String(error),
+        { traceId: this.appClsService.getTraceId() },
+      );
+
+      throw new AppException('ORDER_CREATE_FAILED');
     }
   }
 }

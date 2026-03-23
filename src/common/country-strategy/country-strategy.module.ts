@@ -17,25 +17,34 @@ export class CountryStrategyModule {
       );
     }
 
-    const providers = registrations.map((registration) => {
-      const Strategy = registration.strategies[country as Country];
+    const { providers, exports } = registrations.reduce<{
+      providers: {
+        provide: symbol;
+        useClass: new (...args: never[]) => unknown;
+      }[];
+      exports: symbol[];
+    }>(
+      (acc, registration) => {
+        const Strategy = registration.strategies[country as Country];
 
-      if (!Strategy) {
-        throw new Error(
-          `No strategy found for country "${country}" with token "${registration.token.toString()}"`,
-        );
-      }
+        if (!Strategy) {
+          throw new Error(
+            `No strategy found for country "${country}" with token "${registration.token.toString()}"`,
+          );
+        }
 
-      return {
-        provide: registration.token,
-        useClass: Strategy,
-      };
-    });
+        acc.providers.push({ provide: registration.token, useClass: Strategy });
+        acc.exports.push(registration.token);
+
+        return acc;
+      },
+      { providers: [], exports: [] },
+    );
 
     return {
       module: CountryStrategyModule,
       providers,
-      exports: providers.map((p) => p.provide),
+      exports,
     };
   }
 }

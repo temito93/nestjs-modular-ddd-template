@@ -8,6 +8,7 @@ import {
 } from '@app/modules/order/shared/constants';
 import type { ICreateOrderPolicy } from '../../policies/interfaces';
 import { CREATE_ORDER_POLICY } from '../../constants';
+import { AppClsService } from '@app/common/cls';
 import { BaseCreateOrderBp } from '../base/create-order.bp';
 
 @Injectable()
@@ -16,8 +17,9 @@ export class TurkeyCreateOrderBp extends BaseCreateOrderBp {
     @Inject(ORDER_DAL) orderDal: IOrderDal,
     @Inject(ORDER_ACTION_TRACKER_DAL) trackerDal: IOrderActionTrackerDal,
     @Inject(CREATE_ORDER_POLICY) policy: ICreateOrderPolicy,
+    appClsService: AppClsService,
   ) {
-    super(orderDal, trackerDal, policy);
+    super(orderDal, trackerDal, policy, appClsService);
   }
 
   protected getInitialStatus(): OrderStatus {
