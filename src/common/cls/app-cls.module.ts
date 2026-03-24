@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { ClsModule } from 'nestjs-cls';
 import { v4 as uuidv4 } from 'uuid';
 import type { FastifyRequest } from 'fastify';
 import { AppClsService } from './app-cls.service';
 
+@Global()
 @Module({
   imports: [
     ClsModule.forRoot({

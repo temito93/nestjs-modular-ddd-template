@@ -1,4 +1,4 @@
-import type { ErrorCode } from '../../common/exceptions/error-codes';
+import type { ErrorCode } from '@app/common/exceptions';
 
 const translations: Record<ErrorCode, string> = {
   ORDER_CREATE_FAILED: 'Buyurtma yaratishda xatolik',

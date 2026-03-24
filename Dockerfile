@@ -14,7 +14,7 @@ COPY . .
 
 RUN pnpm run prisma:generate
 RUN pnpm run build
-RUN pnpm prune --prod
+RUN CI=true pnpm prune --prod --ignore-scripts
 
 FROM node:22-alpine AS runner
 
@@ -30,4 +30,4 @@ USER node
 
 EXPOSE 3000
 
-CMD ["node", "dist/main"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]

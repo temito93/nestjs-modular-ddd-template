@@ -10,17 +10,19 @@ import { CreateOrderController } from './controllers/create-order.controller';
 
 @Module({
   imports: [
-    OrderSharedModule,
-    CountryStrategyModule.forFeature([
-      {
-        token: CREATE_ORDER_BP,
-        strategies: { [Country.TR]: TurkeyCreateOrderBp },
-      },
-      {
-        token: CREATE_ORDER_POLICY,
-        strategies: { [Country.TR]: TurkeyCreateOrderPolicy },
-      },
-    ]),
+    CountryStrategyModule.forFeature({
+      imports: [OrderSharedModule],
+      registrations: [
+        {
+          token: CREATE_ORDER_BP,
+          strategies: { [Country.TR]: TurkeyCreateOrderBp },
+        },
+        {
+          token: CREATE_ORDER_POLICY,
+          strategies: { [Country.TR]: TurkeyCreateOrderPolicy },
+        },
+      ],
+    }),
   ],
   controllers: [CreateOrderController],
   providers: [CreateOrderService],

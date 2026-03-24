@@ -1,4 +1,4 @@
-import { DynamicModule, Module } from '@nestjs/common';
+import { DynamicModule, Module, Type } from '@nestjs/common';
 import { Country } from '@app/common/enums';
 
 interface StrategyRegistration {
@@ -6,9 +6,21 @@ interface StrategyRegistration {
   strategies: Partial<Record<Country, new (...args: never[]) => unknown>>;
 }
 
+interface CountryStrategyOptions {
+  imports?: Array<Type | DynamicModule>;
+  registrations: StrategyRegistration[];
+}
+
 @Module({})
 export class CountryStrategyModule {
-  static forFeature(registrations: StrategyRegistration[]): DynamicModule {
+  static forFeature(
+    registrationsOrOptions: StrategyRegistration[] | CountryStrategyOptions,
+  ): DynamicModule {
+    const isOptions = !Array.isArray(registrationsOrOptions);
+    const registrations = isOptions
+      ? registrationsOrOptions.registrations
+      : registrationsOrOptions;
+    const imports = isOptions ? (registrationsOrOptions.imports ?? []) : [];
     const country = process.env.COUNTRY?.toUpperCase();
 
     if (!country || !Object.values(Country).includes(country as Country)) {
@@ -43,6 +55,7 @@ export class CountryStrategyModule {
 
     return {
       module: CountryStrategyModule,
+      imports,
       providers,
       exports,
     };

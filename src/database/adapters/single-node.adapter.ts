@@ -18,7 +18,9 @@ export class SingleNodeAdapter implements IDatabaseAdapter {
     }
 
     const ssl = db.ssl ? '?sslmode=require' : '';
+    const password = encodeURIComponent(db.password);
+    const user = encodeURIComponent(db.user);
 
-    return `postgresql://${db.user}:${db.password}@${db.host}:${db.port}/${db.name}${ssl}`;
+    return `postgresql://${user}:${password}@${db.host}:${db.port}/${db.name}${ssl}`;
   }
 }
