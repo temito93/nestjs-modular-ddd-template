@@ -3,9 +3,8 @@ import {
   Module,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import type { RedisConfig } from './interfaces/redis-config.interface';
-import redisConfig from './redis.config';
 import { StandaloneAdapter } from './adapters/standalone.adapter';
 import { SentinelAdapter } from './adapters/sentinel.adapter';
 import { RedisService } from './redis.service';
@@ -17,7 +16,7 @@ export class RedisModule {
   static forRoot(): DynamicModule {
     return {
       module: RedisModule,
-      imports: [ConfigModule.forFeature(redisConfig)],
+
       providers: [
         {
           provide: REDIS_CLIENT,
